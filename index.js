@@ -34,11 +34,7 @@ app.get('/ping/:device/:key', async (req, res) => {
         //Connect to client.
         await new Promise((resolveSession, rejectSession) => {
             const ssh = new NodeSSH();
-            ssh.connect({
-                host: devices[req.params.device].host,
-                username: devices[req.params.device].username,
-                password: devices[req.params.device].password
-            }).then(async () => {
+            ssh.connect(devices[req.params.device]).then(async () => {
                 console.log(chalk.yellow("T" + task) + ': ' + chalk.blue('[i]') + " Connected to device \"" + req.params.device + "\" via SSH.");
 
                 //Start on repeated scripts.
@@ -60,6 +56,7 @@ app.get('/ping/:device/:key', async (req, res) => {
                                     console.log(chalk.yellow("T" + task) + ': ' + chalk.green('[+]') + " Script \"" + scriptName + "\" executed on device \"" + req.params.device + "\"");
                                 } else {
                                     console.error(chalk.yellow("T" + task) + ': ' + chalk.red('[-]') + " Script \"" + scriptName + "\" failed on device \"" + req.params.device + "\"");
+                                    console.error(chalk.red(res.code));
                                     console.error(chalk.red(res.stdout));
                                 }
                             }
@@ -119,7 +116,7 @@ app.get('/ping/:device/:key', async (req, res) => {
                 console.log(chalk.yellow("T" + task) + ': ' + chalk.blue('[i]') + " Disconnected to device \"" + req.params.device + "\" via SSH.");
                 resolveSession();
             }).catch(e => {
-                console.error(chalk.yellow("T" + task) + ': ' + chalk.red('[-]') + " Script \"" + scriptName + "\" failed on device \"" + req.params.device + "\"");
+                console.error(chalk.yellow("T" + task) + ': ' + chalk.red('[-]') + " Failed to connect to device \"" + req.params.device + "\"");
                 console.error(chalk.red(e));
                 resolveSession();
             });
