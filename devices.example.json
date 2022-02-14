@@ -1,0 +1,8 @@
+{
+    "DEVICE_NAME": {
+        "key": "DEVICE_SECRET",
+        "host": "hostname.domain.tld",
+        "username": "username",
+        "password": "password"
+    }
+}

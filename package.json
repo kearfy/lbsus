@@ -1,0 +1,16 @@
+{
+    "name": "server",
+    "version": "1.0.0",
+    "description": "Server for Laptops Task Scheduler",
+    "main": "index.js",
+    "scripts": {},
+    "author": "Micha de Vries",
+    "license": "GPL-3.0",
+    "dependencies": {
+        "chalk": "^5.0.0",
+        "dotenv": "^16.0.0",
+        "express": "^4.17.2",
+        "node-ssh": "^12.0.3"
+    },
+    "type": "module"
+}

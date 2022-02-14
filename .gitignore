@@ -1,0 +1,10 @@
+node_modules/
+scripts-repeat/*
+!scripts-repeat/.gitkeep
+scripts-once/*
+!scripts-once/.gitkeep
+!scripts-once/finished/
+scripts-once/finished/*
+!scripts-once/finished/.gitkeep
+devices.json
+package-lock.json
