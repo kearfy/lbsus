@@ -131,6 +131,6 @@ app.get('/ping/:device/:key', async (req, res) => {
 });
 
 //Start listening on the defined port!
-app.listen(process.env.PORT, () => {
-    console.log(chalk.blue('[i]') + ` Server is listening on port ${process.env.PORT}`);
+app.listen(process.env.PORT || port, () => {
+    console.log(chalk.blue('[i]') + ` Server is listening on port ${process.env.PORT || port}`);
 });
