@@ -11,19 +11,25 @@ const app = express();
 const port = 3000;
 var taskCount = 0;
 
+//Logger, logs in console and stores data in logfile.
 async function log(device, msg, toConsole = true) {
+    //If, should be posted in console, log to console.
     if (toConsole) console.log(msg);
+
+    //Check if logfile exists.
     var logFile = './logs/' + device + '.log.txt';
     if (!fs.existsSync(logFile)) {
         try {
             fs.writeFileSync(logFile, '===== START OF LOGS =====');
         } catch (e) {
+            //Oh no, Failed to create logfile! Shout it into console.
             console.log(chalk.red('[-]') + " Failed to create logfile for device \"" + device + "\"");
             console.log(chalk.red(e));
             return false;
         }
     }
 
+    //Append message to logfile.
     fs.appendFileSync(logFile, "\n" + msg.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, ''));
     return true;
 }
