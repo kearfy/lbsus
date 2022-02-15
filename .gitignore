@@ -1,4 +1,6 @@
 node_modules/
+logs/*
+!logs/.gitkeep
 scripts-repeat/*
 !scripts-repeat/.gitkeep
 scripts-once/*
