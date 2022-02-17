@@ -1,5 +1,5 @@
 {
-    "name": "server",
+    "name": "lbsus",
     "version": "1.0.0",
     "description": "Server for Laptops Task Scheduler",
     "main": "index.js",
