@@ -1,8 +1,10 @@
+// Import libraries
 import { NodeSSH } from 'node-ssh';
 import fs from 'fs';
 import chalk from 'chalk';
 import dotenv from 'dotenv';
 
+//Load environment variables.
 dotenv.config();
 
 async function log(msg, toConsole = true) {
@@ -27,17 +29,21 @@ async function log(msg, toConsole = true) {
     return true;
 }
 
+//Switch to async.
 (async function() {
+    //Obtain device list.
     let devicesRaw = fs.readFileSync('./devices.json');
     var devices = JSON.parse(devicesRaw);
     var deviceNames = Object.keys(devices);
 
     await log(chalk.blue('[i]') + " Retrieved devices, starting enrollment.");
 
+    //Loop through devices.
     for (var i = 0; i < deviceNames.length; i++) {
         var deviceName = deviceNames[i];
         var device = devices[deviceName];
 
+        //Parse and fill enroll script.
         let enrollScript = fs.readFileSync('./enroll-devices.sh').toString();
         enrollScript = enrollScript.replace('{{PASSWORD}}', device.password);
         enrollScript = enrollScript.replace('{{HOST}}', process.env.HOST);
@@ -46,12 +52,14 @@ async function log(msg, toConsole = true) {
         await log(chalk.blue('[i]') + " Prepared enrollment script for device \"" + deviceName + "\".");
         await log(chalk.blue('[i]') + " Connecting to device \"" + deviceName + "\".");
 
+        //Connect to client.
         await new Promise(async (resolveSession, rejectSession) => {
             const ssh = new NodeSSH();
             ssh.connect(device).then(async () => {
                 await log(chalk.green('[+]') + " Connected to device \"" + deviceName + "\" via SSH.");
                 await log(chalk.blue('[i]') + " Start enrolling device \"" + deviceName + "\".");
 
+                //Execute enroll script.
                 let res = await ssh.execCommand('bash -s', {stdin: enrollScript});
                 if (res.code == 0) {
                     await log(chalk.green('[+]') + " Enrolled device \"" + deviceName + "\"");
@@ -67,6 +75,7 @@ async function log(msg, toConsole = true) {
                 await log(chalk.blue('[i]') + " Disconnected from device \"" + deviceName + "\"");
                 resolveSession();
             }).catch(async e => {
+                //Failed, tell user why.
                 await log(chalk.red('[-]') + " Failed to connect to device \"" + deviceName + "\"");
                 await log(chalk.red(e));
                 resolveSession();
