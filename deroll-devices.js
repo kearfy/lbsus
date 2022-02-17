@@ -46,10 +46,6 @@ async function log(msg, toConsole = true) {
         //Parse and fill deroll script.
         let derollScript = fs.readFileSync('./deroll-devices.sh').toString();
         derollScript = derollScript.replace('{{PASSWORD}}', device.password);
-        derollScript = derollScript.replace('{{HOST}}', process.env.HOST);
-        derollScript = derollScript.replace('{{PORT}}', process.env.PORT);
-        derollScript = derollScript.replace('{{DEVICE}}', deviceName);
-        derollScript = derollScript.replace('{{KEY}}', device.key);
         
         await log(chalk.blue('[i]') + " Prepared derollment script for device \"" + deviceName + "\".");
         await log(chalk.blue('[i]') + " Connecting to device \"" + deviceName + "\".");
