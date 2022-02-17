@@ -11,7 +11,7 @@ if [ ! -f /etc/systemd/system/lbsus-ping.service ]; then
 
     [Service]
     ExecStartPre=/bin/sleep 120
-    ExecStart=/usr/bin/wget -q -O- http://{{HOST}}:{{PORT}}/ping/6l-ltinf17/41is0g
+    ExecStart=/usr/bin/wget -q -O- http://{{HOST}}:{{PORT}}/ping/{{DEVICE}}/{{KEY}}
     TimeoutSec=150
 
     [Install]

@@ -12,13 +12,13 @@ async function log(msg, toConsole = true) {
     if (toConsole) console.log(msg);
 
     //Check if logfile exists.
-    var logFile = './logs/enroll-devices.system.log.txt';
+    var logFile = './logs/deroll-devices.system.log.txt';
     if (!fs.existsSync(logFile)) {
         try {
             fs.writeFileSync(logFile, '===== START OF LOGS =====');
         } catch (e) {
             //Oh no, Failed to create logfile! Shout it into console.
-            console.log(chalk.red('[-]') + " Failed to create logfile for enrollment process");
+            console.log(chalk.red('[-]') + " Failed to create logfile for derollment process");
             console.log(chalk.red(e));
             return false;
         }
@@ -36,22 +36,22 @@ async function log(msg, toConsole = true) {
     var devices = JSON.parse(devicesRaw);
     var deviceNames = Object.keys(devices);
 
-    await log(chalk.blue('[i]') + " Retrieved devices, starting enrollment.");
+    await log(chalk.blue('[i]') + " Retrieved devices, starting derollment.");
 
     //Loop through devices.
     for (var i = 0; i < deviceNames.length; i++) {
         var deviceName = deviceNames[i];
         var device = devices[deviceName];
 
-        //Parse and fill enroll script.
-        let enrollScript = fs.readFileSync('./enroll-devices.sh').toString();
-        enrollScript = enrollScript.replace('{{PASSWORD}}', device.password);
-        enrollScript = enrollScript.replace('{{HOST}}', process.env.HOST);
-        enrollScript = enrollScript.replace('{{PORT}}', process.env.PORT);
-        enrollScript = enrollScript.replace('{{DEVICE}}', deviceName);
-        enrollScript = enrollScript.replace('{{KEY}}', device.key);
+        //Parse and fill deroll script.
+        let derollScript = fs.readFileSync('./deroll-devices.sh').toString();
+        derollScript = derollScript.replace('{{PASSWORD}}', device.password);
+        derollScript = derollScript.replace('{{HOST}}', process.env.HOST);
+        derollScript = derollScript.replace('{{PORT}}', process.env.PORT);
+        derollScript = derollScript.replace('{{DEVICE}}', deviceName);
+        derollScript = derollScript.replace('{{KEY}}', device.key);
         
-        await log(chalk.blue('[i]') + " Prepared enrollment script for device \"" + deviceName + "\".");
+        await log(chalk.blue('[i]') + " Prepared derollment script for device \"" + deviceName + "\".");
         await log(chalk.blue('[i]') + " Connecting to device \"" + deviceName + "\".");
 
         //Connect to client.
@@ -59,15 +59,15 @@ async function log(msg, toConsole = true) {
             const ssh = new NodeSSH();
             ssh.connect(device).then(async () => {
                 await log(chalk.green('[+]') + " Connected to device \"" + deviceName + "\" via SSH.");
-                await log(chalk.blue('[i]') + " Start enrolling device \"" + deviceName + "\".");
+                await log(chalk.blue('[i]') + " Start derolling device \"" + deviceName + "\".");
 
-                //Execute enroll script.
-                let res = await ssh.execCommand('bash -s', {stdin: enrollScript});
+                //Execute deroll script.
+                let res = await ssh.execCommand('bash -s', {stdin: derollScript});
                 if (res.code == 0) {
-                    await log(chalk.green('[+]') + " Enrolled device \"" + deviceName + "\"");
+                    await log(chalk.green('[+]') + " derolled device \"" + deviceName + "\"");
                     await log("\n" + res.stdout + "\n", false);
                 } else {
-                    await log(chalk.red('[-]') + " Enrollment failed on device \"" + deviceName + "\"");
+                    await log(chalk.red('[-]') + " derollment failed on device \"" + deviceName + "\"");
                     await log(chalk.red(res.code));
                     await log("\n" + chalk.red(res.stdout) + "\n");
                 }
@@ -85,5 +85,5 @@ async function log(msg, toConsole = true) {
         });
     }
 
-    await log(chalk.blue('[i]') + " Finished enrolling devices.");
+    await log(chalk.blue('[i]') + " Finished derolling devices.");
 })();
