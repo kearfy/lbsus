@@ -1,6 +1,9 @@
 import { NodeSSH } from 'node-ssh';
 import fs from 'fs';
 import chalk from 'chalk';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 async function log(msg, toConsole = true) {
     //If, should be posted in console, log to console.
@@ -34,13 +37,14 @@ async function log(msg, toConsole = true) {
     for (var i = 0; i < deviceNames.length; i++) {
         var deviceName = deviceNames[i];
         var device = devices[deviceName];
-        await log(chalk.blue('[i]') + " Connecting to device \"" + deviceName + "\".");
 
-        let enrollScript = fs.readFileSync('./enroll-devices.sh');
-        enrollScript.replace('{{PASSWORD}}', device.password);
-        enrollScript.replace('{{HOST}}', process.env.HOST);
-        enrollScript.replace('{{PORT}}', process.env.PORT);
+        let enrollScript = fs.readFileSync('./enroll-devices.sh').toString();
+        enrollScript = enrollScript.replace('{{PASSWORD}}', device.password);
+        enrollScript = enrollScript.replace('{{HOST}}', process.env.HOST);
+        enrollScript = enrollScript.replace('{{PORT}}', process.env.PORT);
+        
         await log(chalk.blue('[i]') + " Prepared enrollment script for device \"" + deviceName + "\".");
+        await log(chalk.blue('[i]') + " Connecting to device \"" + deviceName + "\".");
 
         await new Promise(async (resolveSession, rejectSession) => {
             const ssh = new NodeSSH();
@@ -50,17 +54,17 @@ async function log(msg, toConsole = true) {
 
                 let res = await ssh.execCommand('bash -s', {stdin: enrollScript});
                 if (res.code == 0) {
-                    await log(chalk.green('[+]') + " Enrolled device \"" + req.params.device + "\"");
+                    await log(chalk.green('[+]') + " Enrolled device \"" + deviceName + "\"");
                     await log("\n" + res.stdout + "\n", false);
                 } else {
-                    await log(chalk.red('[-]') + " Enrollment failed on device \"" + req.params.device + "\"");
+                    await log(chalk.red('[-]') + " Enrollment failed on device \"" + deviceName + "\"");
                     await log(chalk.red(res.code));
                     await log("\n" + chalk.red(res.stdout) + "\n");
                 }
                 
                 //Disconnect from SSH session and resolve the promise.
                 ssh.dispose();
-                await log(chalk.blue('[i]') + " Disconnected from device \"" + req.params.device + "\"");
+                await log(chalk.blue('[i]') + " Disconnected from device \"" + deviceName + "\"");
                 resolveSession();
             }).catch(async e => {
                 await log(chalk.red('[-]') + " Failed to connect to device \"" + deviceName + "\"");
