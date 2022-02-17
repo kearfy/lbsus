@@ -10,8 +10,9 @@ if [ ! -f /etc/systemd/system/lbsus-ping.service ]; then
     After=network.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target
 
     [Service]
-    ExecStartPre=/bin/sleep 10
-    ExecStart=/usr/bin/wget -O- http://{{HOST}}:{{PORT}}/ping/6l-ltinf17/41is0g
+    ExecStartPre=/bin/sleep 40
+    ExecStart=/usr/bin/wget -q -O- http://{{HOST}}:{{PORT}}/ping/6l-ltinf17/41is0g
+    TimeoutSec=60
 
     [Install]
     WantedBy=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target multi-user.target'
