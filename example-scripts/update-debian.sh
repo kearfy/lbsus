@@ -1,5 +1,5 @@
 # Obtain superuser privileges
-echo PASS | sudo -S -v
+echo 'PASS' | sudo -S -v
 
 # Refresh repositories
 sudo apt-get update -y
