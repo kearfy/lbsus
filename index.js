@@ -34,6 +34,21 @@ async function log(device, msg, toConsole = true) {
     return true;
 }
 
+async function deviceFailed(device) {
+    var marker = './failed/' + device;
+    if (!fs.existsSync(marker)) {
+        try {
+            fs.writeFileSync(marker, 'One or more scripts failed on device, check logs for issues.');
+        } catch(e) {
+            console.log(chalk.red('[-]') + " Failed to create fail file for device \"" + device + "\""); 
+            console.log(chalk.red(e));
+            return false;           
+        }
+    }
+
+    return true;
+}
+
 //Cool little reponse for the root webpage! ;)
 app.get('/', (req, res) => {
     res.send('Laptop Management System V1. It\'s alive!');
@@ -79,6 +94,7 @@ app.get('/ping/:device/:key', async (req, res) => {
                                     await log(req.params.device, chalk.yellow("T" + task) + ': ' + chalk.green('[+]') + " Script \"" + scriptName + "\" executed on device \"" + req.params.device + "\"");
                                     await log(req.params.device, "\n" + res.stdout + "\n", false);
                                 } else {
+                                    await deviceFailed(req.params.device);
                                     await log(req.params.device, chalk.yellow("T" + task) + ': ' + chalk.red('[-]') + " Script \"" + scriptName + "\" failed on device \"" + req.params.device + "\"");
                                     await log(req.params.device, chalk.red(res.code));
                                     await log(req.params.device, "\n" + chalk.red(res.stdout) + "\n");
@@ -121,6 +137,7 @@ app.get('/ping/:device/:key', async (req, res) => {
                                             await log(req.params.device, chalk.red(e));
                                         }
                                     } else {
+                                        await deviceFailed(req.params.device);
                                         await log(req.params.device, chalk.yellow("T" + task) + ': ' + chalk.red('[-]') + " Script \"" + scriptName + "\" failed on device \"" + req.params.device + "\"");
                                         await log(req.params.device, "\n" + chalk.red(res.stdout) + "\n");
                                     }
@@ -141,6 +158,7 @@ app.get('/ping/:device/:key', async (req, res) => {
                 await log(req.params.device, chalk.yellow("T" + task) + ': ' + chalk.blue('[i]') + " Disconnected to device \"" + req.params.device + "\" via SSH.");
                 resolveSession();
             }).catch(async e => {
+                await deviceFailed(req.params.device);
                 await log(req.params.device, chalk.yellow("T" + task) + ': ' + chalk.red('[-]') + " Failed to connect to device \"" + req.params.device + "\"");
                 await log(req.params.device, chalk.red(e));
                 resolveSession();
